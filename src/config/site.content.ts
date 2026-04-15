@@ -29,26 +29,26 @@ export const siteContent = {
   },
   home: {
     metadata: {
-      title: 'Stories, visuals, and discoverable content',
+      title: 'Technology Articles and Editorial Insights',
       description:
-        'Explore articles, images, listings, and curated posts through a cleaner reading-first experience.',
-      openGraphTitle: 'Stories, visuals, and discoverable content',
+        'Read practical technology articles, explainers, and editorial analysis in a clean reading-first experience.',
+      openGraphTitle: 'Technology Articles and Editorial Insights',
       openGraphDescription:
-        'Discover articles, visual posts, and connected content through a calmer reading-first experience.',
-      keywords: ['story platform', 'article site', 'visual content', 'content discovery'],
+        'Discover technology stories, deep dives, and thoughtful editorial writing in one place.',
+      keywords: ['technology articles', 'tech editorials', 'guides', 'analysis'],
     },
     introBadge: 'About the platform',
-    introTitle: 'Built for reading, browsing, and connecting different kinds of content.',
+    introTitle: 'Built for reading, research, and thoughtful technology publishing.',
     introParagraphs: [
-      'This site brings together article-style reading, visual browsing, and structured discovery so visitors can move naturally between different content types.',
-      'Instead of separating stories, visuals, and supporting resources into disconnected surfaces, the platform keeps them connected in one place with consistent navigation and easier exploration.',
-      'Whether someone starts with a story, an image-led post, a listing, or a resource page, they can keep discovering related content without friction.',
+      'This publication is focused on long-form articles, practical explainers, and technology perspective pieces.',
+      'The layout is designed for focused reading with clear navigation, highlighted recommendations, and clean article cards.',
+      'Readers can move between latest stories, featured analysis, and archived posts without distractions.',
     ],
     sideBadge: 'At a glance',
     sidePoints: [
-      'Reading-first homepage with stronger emphasis on stories and imagery.',
-      'Connected sections for articles, visuals, listings, and supporting resources.',
-      'Cleaner browsing rhythm designed to make exploration feel easier.',
+      'Reading-first homepage designed for article discovery.',
+      'Featured story and recommended list visible at a glance.',
+      'Cleaner browsing rhythm for longer-form content.',
       'Lightweight interactions that keep the experience fast and readable.',
     ],
     primaryLink: {
@@ -56,15 +56,15 @@ export const siteContent = {
       href: '/articles',
     },
     secondaryLink: {
-      label: 'See visuals',
-      href: '/images',
+      label: 'Open latest stories',
+      href: '/articles',
     },
   },
   cta: {
     badge: 'Start exploring',
-    title: 'Explore articles, visuals, and resources through one connected experience.',
+    title: 'Explore practical articles and technology insights.',
     description:
-      'Move between articles, image-led posts, listings, and resources through one clearer and more connected visual system.',
+      'Read, save, and return to quality technology writing through a clean editorial experience.',
     primaryCta: {
       label: 'Get Started Free',
       href: '/register',
@@ -129,14 +129,14 @@ export const taskIntroCopy: Record<
   article: {
     title: 'Articles, stories, and long-form reading',
     paragraphs: [
-      'This section is built for stories, explainers, guides, and long-form reading across topics and interests.',
-      'Articles connect with listings, images, resources, and other content types so deeper reading can lead naturally into related discovery.',
-      'Use this section to browse thoughtful posts, revisit useful writing, and move into supporting content when you want more context.',
+      'This section is built for technology stories, explainers, guides, and editorial analysis.',
+      'The layout highlights a featured piece, a short row of fresh picks, and a deeper archive so you can read at your own pace.',
+      'Use search and category filters to jump to topics you care about without losing the calm reading rhythm.',
     ],
     links: [
-      { label: 'Explore listings', href: '/listings' },
-      { label: 'Open images', href: '/images' },
-      { label: 'Browse resources', href: '/pdf' },
+      { label: 'Search articles', href: '/search' },
+      { label: 'About the publication', href: '/about' },
+      { label: 'Contact', href: '/contact' },
     ],
   },
   classified: {

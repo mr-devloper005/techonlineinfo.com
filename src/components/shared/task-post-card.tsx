@@ -1,6 +1,6 @@
 import { ContentImage } from '@/components/shared/content-image'
 import Link from 'next/link'
-import { ArrowUpRight, ExternalLink, FileText, Mail, MapPin, Tag } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ExternalLink, FileText, Mail, MapPin, Tag } from 'lucide-react'
 import type { SitePost } from '@/lib/site-connector'
 import { CATEGORY_OPTIONS, normalizeCategory } from '@/lib/categories'
 import type { TaskKey } from '@/lib/site-config'
@@ -67,6 +67,12 @@ const cardStyles = {
     title: 'text-[#2b1d17]',
     badge: 'bg-[#2b1d17] text-[#fff3df]',
   },
+  'article-glass': {
+    frame: 'rounded-[1.85rem] border border-white/55 bg-white/50 shadow-[0_20px_60px_rgba(99,102,241,0.1)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-white/70 hover:shadow-[0_28px_72px_rgba(99,102,241,0.14)]',
+    muted: 'text-slate-500',
+    title: 'text-slate-900',
+    badge: 'bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-sm',
+  },
   'studio-panel': {
     frame: 'rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(7,17,31,0.96),rgba(12,23,43,0.96))] text-white shadow-[0_24px_80px_rgba(15,23,42,0.35)] hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(15,23,42,0.42)]',
     muted: 'text-slate-300',
@@ -88,11 +94,14 @@ export function TaskPostCard({
   href,
   taskKey,
   compact,
+  featured,
 }: {
   post: SitePost
   href: string
   taskKey?: TaskKey
   compact?: boolean
+  /** Large hero-style card for article listings */
+  featured?: boolean
 }) {
   if (TASK_POST_CARD_OVERRIDE_ENABLED) {
     return <TaskPostCardOverride post={post} href={href} taskKey={taskKey} compact={compact} />
@@ -105,6 +114,7 @@ export function TaskPostCard({
   const category = CATEGORY_OPTIONS.find((item) => item.slug === normalizedCategory)?.name || rawCategory
   const variant = taskKey || 'listing'
   const visualVariant = cardStyles[getVariantForTask(variant)]
+  const tagLabels = Array.isArray(post.tags) ? post.tags.filter((t): t is string => typeof t === 'string').slice(0, 4) : []
   const isBookmarkVariant = variant === 'sbm' || variant === 'social'
   const imageAspect = variant === 'image' ? 'aspect-[4/5]' : variant === 'article' ? 'aspect-[16/10]' : variant === 'pdf' ? 'aspect-[4/5]' : variant === 'classified' ? 'aspect-[16/11]' : 'aspect-[4/3]'
   const altText = `${post.title} ${category} ${variant === 'listing' ? 'business listing' : variant} image`
@@ -113,6 +123,57 @@ export function TaskPostCard({
   const { recipe } = getFactoryState()
   const isDirectoryProduct = recipe.homeLayout === 'listing-home' || recipe.homeLayout === 'classified-home'
   const isDirectorySurface = isDirectoryProduct && (variant === 'listing' || variant === 'classified' || variant === 'profile')
+
+  if (variant === 'article' && featured) {
+    return (
+      <Link
+        href={href}
+        className="group relative grid gap-8 overflow-hidden rounded-[2.25rem] border border-white/55 bg-white/45 p-6 shadow-[0_28px_80px_rgba(99,102,241,0.12)] backdrop-blur-xl sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10"
+      >
+        <div className="relative z-10 flex flex-col">
+          <span className="inline-flex w-fit items-center rounded-full bg-gradient-to-r from-violet-600/95 to-indigo-500/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white shadow-sm">
+            Best of the week
+          </span>
+          <p className={`mt-4 text-sm font-medium ${visualVariant.muted}`}>
+            {category}
+            <span className="opacity-70"> · Featured</span>
+          </p>
+          <h2 className={`mt-4 text-3xl font-semibold leading-[1.15] tracking-[-0.04em] sm:text-4xl ${visualVariant.title}`}>{post.title}</h2>
+          {tagLabels.length ? (
+            <p className={`mt-4 text-sm ${visualVariant.muted}`}>
+              {tagLabels.map((t) => (
+                <span key={t} className="mr-2 font-medium text-slate-600">
+                  #{t.replace(/\s+/g, '')}
+                </span>
+              ))}
+            </p>
+          ) : null}
+          <span className="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/80 bg-white/90 px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition group-hover:border-violet-200 group-hover:shadow-md">
+            Read article
+            <ArrowRight className="h-4 w-4 text-violet-600" />
+          </span>
+        </div>
+        <div className="relative min-h-[240px] sm:min-h-[300px]">
+          <div
+            className="pointer-events-none absolute -right-4 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.45),rgba(99,102,241,0.15)_40%,transparent_68%)] blur-2xl sm:h-80 sm:w-80"
+            aria-hidden
+          />
+          <div className="relative h-full min-h-[240px] overflow-hidden rounded-[1.75rem] border border-white/50 bg-slate-100/80 shadow-inner sm:min-h-[300px]">
+            <ContentImage
+              src={image}
+              alt={altText}
+              fill
+              sizes="(max-width: 1024px) 92vw, 520px"
+              quality={80}
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              intrinsicWidth={960}
+              intrinsicHeight={720}
+            />
+          </div>
+        </div>
+      </Link>
+    )
+  }
 
   if (isDirectorySurface) {
     const cardTone = recipe.brandPack === 'market-utility'

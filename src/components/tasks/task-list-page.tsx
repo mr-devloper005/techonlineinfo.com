@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Building2, FileText, Image as ImageIcon, LayoutGrid, Tag, User } from 'lucide-react'
+import { ArrowRight, Building2, FileText, Image as ImageIcon, LayoutGrid, Search, Tag, User } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { TaskListClient } from '@/components/tasks/task-list-client'
@@ -27,8 +27,10 @@ const taskIcons: Record<TaskKey, any> = {
 const variantShells = {
   'listing-directory': 'bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.08),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)]',
   'listing-showcase': 'bg-[linear-gradient(180deg,#ffffff_0%,#f4f9ff_100%)]',
-  'article-editorial': 'bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.08),transparent_20%),linear-gradient(180deg,#fff8ef_0%,#ffffff_100%)]',
-  'article-journal': 'bg-[linear-gradient(180deg,#fffdf9_0%,#f7f1ea_100%)]',
+  'article-editorial':
+    'bg-[radial-gradient(circle_at_80%_20%,rgba(139,92,246,0.12),transparent_42%),radial-gradient(circle_at_10%_0%,rgba(99,102,241,0.1),transparent_38%),linear-gradient(180deg,#eef2fb_0%,#f6f8ff_48%,#ffffff_100%)]',
+  'article-journal':
+    'bg-[radial-gradient(circle_at_80%_15%,rgba(129,140,248,0.14),transparent_40%),linear-gradient(180deg,#eef2fb_0%,#f8f9ff_50%,#ffffff_100%)]',
   'image-masonry': 'bg-[linear-gradient(180deg,#09101d_0%,#111c2f_100%)] text-white',
   'image-portfolio': 'bg-[linear-gradient(180deg,#07111f_0%,#13203a_100%)] text-white',
   'profile-creator': 'bg-[linear-gradient(180deg,#0a1120_0%,#101c34_100%)] text-white',
@@ -69,14 +71,23 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         input: 'border-white/10 bg-white/6 text-white',
         button: 'bg-white text-slate-950 hover:bg-slate-200',
       }
-    : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+    : layoutKey.startsWith('article')
       ? {
-          muted: 'text-[#72594a]',
-          panel: 'border border-[#dbc6b6] bg-white/90',
-          soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
-          input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
-          button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          muted: 'text-slate-500',
+          panel: 'border border-white/55 bg-white/50 shadow-[0_24px_70px_rgba(99,102,241,0.1)] backdrop-blur-xl',
+          soft: 'border border-white/45 bg-white/40 backdrop-blur-md',
+          input: 'rounded-2xl border border-slate-200/80 bg-white/85 text-slate-900 shadow-sm',
+          button:
+            'rounded-full bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-md hover:opacity-95',
         }
+      : layoutKey.startsWith('sbm')
+        ? {
+            muted: 'text-[#72594a]',
+            panel: 'border border-[#dbc6b6] bg-white/90',
+            soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
+            input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
+            button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          }
       : {
           muted: 'text-slate-600',
           panel: 'border border-slate-200 bg-white',
@@ -147,24 +158,64 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         ) : null}
 
         {layoutKey === 'article-editorial' || layoutKey === 'article-journal' ? (
-          <section className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div>
-              <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-              <h1 className="mt-3 max-w-4xl text-5xl font-semibold tracking-[-0.05em] text-foreground">{taskConfig?.description || 'Latest posts'}</h1>
-              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This reading surface uses slower pacing, stronger typographic hierarchy, and more breathing room so long-form content feels intentional rather than squeezed into a generic feed.</p>
+          <section className="mb-14 grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-start">
+            <div className="relative">
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center rounded-full border border-violet-200/80 bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-700 backdrop-blur-sm">
+                  All · News · Guides
+                </span>
+                <span className="text-xs text-slate-500">Curated technology articles</span>
+              </div>
+              <p className={`text-xs font-semibold uppercase tracking-[0.28em] ${ui.muted}`}>{taskConfig?.label || task}</p>
+              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-slate-900 sm:text-5xl lg:text-[3.15rem]">
+                {taskConfig?.description || 'Latest posts'}
+              </h1>
+              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>
+                Browse explainers, analysis, and long-form stories in a calm layout with glass panels, soft gradients, and room to focus.
+              </p>
+              <Link
+                href="/search"
+                className={`mt-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-white/60 bg-white/55 px-4 py-3.5 text-sm text-slate-600 shadow-[0_12px_40px_rgba(99,102,241,0.08)] backdrop-blur-md transition hover:border-violet-200/80 hover:bg-white/75`}
+              >
+                <Search className="h-4 w-4 shrink-0 text-violet-600" />
+                <span className="text-slate-500">Article name, tag, category…</span>
+              </Link>
             </div>
-            <div className={`rounded-[2rem] p-6 ${ui.panel}`}>
-              <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Reading note</p>
-              <p className={`mt-4 text-sm leading-7 ${ui.muted}`}>Use category filters to jump between topics without collapsing the page into the same repeated card rhythm used by other task types.</p>
-              <form className="mt-5 flex items-center gap-3" action={taskConfig?.route || '#'}>
-                <select name="category" defaultValue={normalizedCategory} className={`h-11 flex-1 rounded-xl px-3 text-sm ${ui.input}`}>
+            <div className={`rounded-[2rem] p-6 sm:p-7 ${ui.panel}`}>
+              <div className="flex items-center justify-between gap-3">
+                <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Recommended</p>
+                <Link href="/articles" className="text-xs font-semibold text-violet-600 hover:text-violet-700">
+                  View all
+                </Link>
+              </div>
+              <p className={`mt-4 text-sm leading-7 ${ui.muted}`}>
+                Filter by topic to narrow the feed, or scroll for editor picks and the full archive below.
+              </p>
+              <form className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center" action={taskConfig?.route || '#'}>
+                <select
+                  name="category"
+                  defaultValue={normalizedCategory}
+                  className={`h-12 w-full flex-1 px-4 text-sm ${ui.input}`}
+                >
                   <option value="all">All categories</option>
                   {CATEGORY_OPTIONS.map((item) => (
-                    <option key={item.slug} value={item.slug}>{item.name}</option>
+                    <option key={item.slug} value={item.slug}>
+                      {item.name}
+                    </option>
                   ))}
                 </select>
-                <button type="submit" className={`h-11 rounded-xl px-4 text-sm font-medium ${ui.button}`}>Apply</button>
+                <button type="submit" className={`h-12 shrink-0 px-6 text-sm font-semibold ${ui.button}`}>
+                  Apply
+                </button>
               </form>
+              <div
+                className="mt-6 rounded-2xl border border-violet-100/80 bg-gradient-to-br from-violet-600/90 to-indigo-600/85 p-5 text-white shadow-lg"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] opacity-90">Spotlight</p>
+                <p className="mt-3 text-lg font-semibold leading-snug tracking-[-0.02em]">
+                  Start with the featured story, then explore the three-up row and archive.
+                </p>
+              </div>
             </div>
           </section>
         ) : null}
