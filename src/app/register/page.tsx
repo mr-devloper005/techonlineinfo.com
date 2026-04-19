@@ -1,10 +1,17 @@
+'use client'
+
+import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
-import { Bookmark, Building2, FileText, Image as ImageIcon, Sparkles } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { AlertCircle, Bookmark, Building2, FileText, Image as ImageIcon, Sparkles } from 'lucide-react'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind } from '@/design/factory/get-product-kind'
+import { useAuth } from '@/lib/auth-context'
+import { articleSiteUi } from '@/lib/article-site-ui'
 import { REGISTER_PAGE_OVERRIDE_ENABLED, RegisterPageOverride } from '@/overrides/register-page'
+import { cn } from '@/lib/utils'
 
 function getRegisterConfig(kind: ReturnType<typeof getProductKind>) {
   if (kind === 'directory') {
@@ -21,11 +28,11 @@ function getRegisterConfig(kind: ReturnType<typeof getProductKind>) {
   }
   if (kind === 'editorial') {
     return {
-      shell: 'bg-[#fbf6ee] text-[#241711]',
-      panel: 'border border-[#dcc8b7] bg-[#fffdfa]',
-      side: 'border border-[#e6d6c8] bg-[#fff4e8]',
-      muted: 'text-[#6e5547]',
-      action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
+      shell: articleSiteUi.shell,
+      panel: articleSiteUi.panel,
+      side: articleSiteUi.soft,
+      muted: articleSiteUi.muted,
+      action: articleSiteUi.action,
       icon: FileText,
       title: 'Start your contributor workspace',
       body: 'Create a profile for essays, issue drafts, editorial review, and publication scheduling.',
@@ -64,31 +71,105 @@ export default function RegisterPage() {
   const productKind = getProductKind(recipe)
   const config = getRegisterConfig(productKind)
   const Icon = config.icon
+  const router = useRouter()
+  const { signup, isLoading } = useAuth()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [focus, setFocus] = useState('')
+  const [error, setError] = useState('')
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError('')
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError('Please fill name, email, and password to continue.')
+      return
+    }
+    try {
+      await signup(name.trim(), email.trim(), password)
+      router.push('/articles')
+      router.refresh()
+    } catch {
+      setError('Unable to create account right now. Please try again.')
+    }
+  }
 
   return (
-    <div className={`min-h-screen ${config.shell}`}>
+    <div
+      className={cn(
+        'min-h-screen',
+        config.shell,
+        productKind !== 'editorial' && 'bg-[linear-gradient(180deg,#eef2fb_0%,#f6f8ff_40%,#ffffff_100%)]'
+      )}
+    >
       <NavbarShell />
       <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-          <div className={`rounded-[2rem] p-8 ${config.side}`}>
-            <Icon className="h-8 w-8" />
-            <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em]">{config.title}</h1>
-            <p className={`mt-5 text-sm leading-8 ${config.muted}`}>{config.body}</p>
+        <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+          <div className={`relative overflow-hidden rounded-[2rem] p-8 ${config.panel} backdrop-blur-sm`}>
+            <div className="pointer-events-none absolute -bottom-16 left-1/2 h-60 w-60 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(133,108,255,0.45),rgba(106,179,255,0.12)_45%,transparent_70%)] blur-xl" />
+            <p className="inline-flex items-center rounded-full border border-black/10 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
+              Reader Membership
+            </p>
+            <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
+              Create your account and build your personalized article stream.
+            </h1>
+            <p className="mt-5 max-w-2xl text-sm leading-8 text-black/60">
+              Join the platform to save posts, track your reading list, and get a cleaner recommendation experience.
+            </p>
             <div className="mt-8 grid gap-4">
-              {['Different onboarding per product family', 'No repeated one-size-fits-all shell', 'Profile, publishing, and discovery aligned'].map((item) => (
-                <div key={item} className="rounded-[1.5rem] border border-current/10 px-4 py-4 text-sm">{item}</div>
+              {['Save article history locally', 'Build a private reading queue', 'Get smoother article-first navigation'].map((item) => (
+                <div key={item} className="rounded-[1.2rem] border border-black/10 bg-white/75 px-4 py-4 text-sm font-medium text-black/75">
+                  {item}
+                </div>
               ))}
             </div>
           </div>
 
-          <div className={`rounded-[2rem] p-8 ${config.panel}`}>
+          <div className={`rounded-[2rem] p-8 ${config.side}`}>
+            <Icon className="h-8 w-8" />
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Create account</p>
-            <form className="mt-6 grid gap-4">
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Full name" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Email address" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="Password" type="password" />
-              <input className="h-12 rounded-xl border border-current/10 bg-transparent px-4 text-sm" placeholder="What are you creating or publishing?" />
-              <button type="submit" className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${config.action}`}>Create account</button>
+            <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">Join the article platform</h2>
+            <p className={`mt-4 text-sm leading-7 ${config.muted}`}>{config.body}</p>
+            {error ? (
+              <p className="mt-4 flex items-center gap-2 rounded-xl border border-red-300/70 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <AlertCircle className="h-4 w-4" />
+                {error}
+              </p>
+            ) : null}
+            <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
+              <input
+                className={cn('h-12 px-4 text-sm', productKind === 'editorial' ? articleSiteUi.input : 'rounded-xl border border-current/10 bg-transparent')}
+                placeholder="Full name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                autoComplete="name"
+              />
+              <input
+                className={cn('h-12 px-4 text-sm', productKind === 'editorial' ? articleSiteUi.input : 'rounded-xl border border-current/10 bg-transparent')}
+                placeholder="Email address"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
+              />
+              <input
+                className={cn('h-12 px-4 text-sm', productKind === 'editorial' ? articleSiteUi.input : 'rounded-xl border border-current/10 bg-transparent')}
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="new-password"
+              />
+              <input
+                className={cn('h-12 px-4 text-sm', productKind === 'editorial' ? articleSiteUi.input : 'rounded-xl border border-current/10 bg-transparent')}
+                placeholder="What topics do you like to read?"
+                value={focus}
+                onChange={(event) => setFocus(event.target.value)}
+              />
+              <button type="submit" disabled={isLoading} className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70 ${config.action}`}>
+                {isLoading ? 'Creating account...' : 'Create account'}
+              </button>
             </form>
             <div className={`mt-6 flex items-center justify-between text-sm ${config.muted}`}>
               <span>Already have an account?</span>
