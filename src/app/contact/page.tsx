@@ -2,6 +2,7 @@ import { Building2, FileText, Image as ImageIcon, Mail, MapPin, Phone, Sparkles,
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { articleSiteUi } from '@/lib/article-site-ui'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind } from '@/design/factory/get-product-kind'
 import { CONTACT_PAGE_OVERRIDE_ENABLED, ContactPageOverride } from '@/overrides/contact-page'
@@ -18,11 +19,11 @@ function getTone(kind: ReturnType<typeof getProductKind>) {
   }
   if (kind === 'editorial') {
     return {
-      shell: 'bg-[#fbf6ee] text-[#241711]',
-      panel: 'border border-[#dcc8b7] bg-[#fffdfa]',
-      soft: 'border border-[#e6d6c8] bg-[#fff4e8]',
-      muted: 'text-[#6e5547]',
-      action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
+      shell: articleSiteUi.shell,
+      panel: articleSiteUi.panel,
+      soft: articleSiteUi.soft,
+      muted: articleSiteUi.muted,
+      action: articleSiteUi.action,
     }
   }
   if (kind === 'visual') {

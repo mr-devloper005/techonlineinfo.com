@@ -10,6 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        /** Article-site primary CTA — violet → indigo pill */
+        gradient:
+          'rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white shadow-[0_8px_24px_rgba(99,102,241,0.35)] hover:opacity-95',
         destructive:
           'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:

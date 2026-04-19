@@ -36,6 +36,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { NavbarShell } from "@/components/shared/navbar-shell"
+import { getFactoryState } from "@/design/factory/get-factory-state"
+import { getProductKind } from "@/design/factory/get-product-kind"
+import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/components/ui/use-toast"
 import { loadFromStorage, storageKeys } from "@/lib/local-storage"
@@ -255,8 +258,11 @@ export default function DashboardPage() {
     [userAds, userArticles, userListings]
   )
 
+  const { recipe } = getFactoryState()
+  const editorialSite = getProductKind(recipe) === "editorial"
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("min-h-screen", editorialSite ? "text-slate-900" : "bg-background text-foreground")}>
       <NavbarShell />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -281,8 +287,8 @@ export default function DashboardPage() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button variant={editorialSite ? "gradient" : "default"} className={cn(editorialSite && "rounded-full")}>
+                  <Plus className="mr-2 h-4 w-4" />
                   Create New
                 </Button>
               </DropdownMenuTrigger>

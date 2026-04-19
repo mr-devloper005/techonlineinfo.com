@@ -41,12 +41,12 @@ const variantClasses = {
     mobile: 'border-t border-slate-200/70 bg-white/95',
   },
   'editorial-bar': {
-    shell: 'border-b border-[#d7c4b3] bg-[#fff7ee]/90 text-[#2f1d16] backdrop-blur-xl',
-    logo: 'rounded-full border border-[#dbc6b6] bg-white shadow-sm',
-    active: 'bg-[#2f1d16] text-[#fff4e4]',
-    idle: 'text-[#72594a] hover:bg-[#f2e5d4] hover:text-[#2f1d16]',
-    cta: 'rounded-full bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
-    mobile: 'border-t border-[#dbc6b6] bg-[#fff7ee]',
+    shell: 'border-b border-violet-200/35 bg-white/72 text-slate-900 shadow-[0_1px_0_rgba(255,255,255,0.85)_inset] backdrop-blur-xl',
+    logo: 'rounded-full border border-violet-100/90 bg-white shadow-[0_4px_20px_rgba(99,102,241,0.08)]',
+    active: 'bg-violet-600 text-white shadow-sm',
+    idle: 'text-slate-600 hover:bg-violet-50 hover:text-violet-800',
+    cta: 'rounded-full bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-md hover:opacity-95',
+    mobile: 'border-t border-violet-100/50 bg-white/92 backdrop-blur-xl',
   },
   'floating-bar': {
     shell: 'border-b border-transparent bg-transparent text-white',
@@ -207,32 +207,30 @@ export function Navbar() {
 
   return (
     <header className={cn('sticky top-0 z-50 w-full', style.shell)}>
-      <nav className={cn('mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8', isFloating ? 'h-24 pt-4' : 'h-20')}>
-        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-7">
+      <nav
+        className={cn(
+          'mx-auto flex max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8',
+          isFloating ? 'h-24 pt-4' : 'h-20',
+          isEditorial ? 'relative justify-between' : 'justify-between'
+        )}
+      >
+        <div
+          className={cn(
+            'flex min-w-0 items-center gap-4 lg:gap-7',
+            isEditorial ? 'z-10 flex-1' : 'flex-1'
+          )}
+        >
           <Link href="/" className="flex shrink-0 items-center gap-3 whitespace-nowrap pr-2">
             <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden p-1.5', style.logo)}>
               <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
             </div>
             <div className="min-w-0 hidden sm:block">
-              <span className="block truncate text-xl font-semibold">{SITE_CONFIG.name}</span>
-              <span className="hidden text-[10px] uppercase tracking-[0.28em] opacity-70 sm:block">{siteContent.navbar.tagline}</span>
+              <span className="block truncate text-xl font-semibold tracking-tight text-slate-900">{SITE_CONFIG.name}</span>
+              <span className="hidden text-[10px] font-medium uppercase tracking-[0.26em] text-slate-500 sm:block">{siteContent.navbar.tagline}</span>
             </div>
           </Link>
 
-          {isEditorial ? (
-            <div className="hidden min-w-0 flex-1 items-center gap-4 xl:flex">
-              <div className="h-px flex-1 bg-[#d8c8bb]" />
-              {primaryNavigation.map((task) => {
-                const isActive = pathname.startsWith(task.route)
-                return (
-                  <Link key={task.key} href={task.route} className={cn('text-sm font-semibold uppercase tracking-[0.18em] transition-colors', isActive ? 'text-[#2f1d16]' : 'text-[#7b6254] hover:text-[#2f1d16]')}>
-                    {task.label}
-                  </Link>
-                )
-              })}
-              <div className="h-px flex-1 bg-[#d8c8bb]" />
-            </div>
-          ) : isFloating ? (
+          {!isEditorial && isFloating ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
               {primaryNavigation.map((task) => {
                 const Icon = taskIcons[task.key] || LayoutGrid
@@ -245,7 +243,8 @@ export function Navbar() {
                 )
               })}
             </div>
-          ) : isUtility ? (
+          ) : null}
+          {!isEditorial && isUtility ? (
             <div className="hidden min-w-0 flex-1 items-center gap-2 xl:flex">
               {primaryNavigation.map((task) => {
                 const isActive = pathname.startsWith(task.route)
@@ -256,23 +255,62 @@ export function Navbar() {
                 )
               })}
             </div>
-          ) : (
+          ) : null}
+          {!isEditorial && !isFloating && !isUtility ? (
             <div className="hidden min-w-0 flex-1 items-center gap-1 overflow-hidden xl:flex">
               {primaryNavigation.map((task) => {
                 const Icon = taskIcons[task.key] || LayoutGrid
                 const isActive = pathname.startsWith(task.route)
                 return (
-                  <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors whitespace-nowrap', isActive ? style.active : style.idle)}>
+                  <Link key={task.key} href={task.route} className={cn('flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors', isActive ? style.active : style.idle)}>
                     <Icon className="h-4 w-4" />
                     <span>{task.label}</span>
                   </Link>
                 )
               })}
             </div>
-          )}
+          ) : null}
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {isEditorial ? (
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 hidden -translate-y-1/2 justify-center xl:flex">
+            <div className="pointer-events-auto flex items-center gap-5">
+              <div className="h-px w-10 bg-gradient-to-r from-transparent via-slate-300 to-slate-300 sm:w-16" />
+              {primaryNavigation.length <= 1 ? (
+                <Link
+                  href={primaryNavigation[0]?.route || '/articles'}
+                  className={cn(
+                    'text-sm font-semibold uppercase tracking-[0.28em] transition-colors',
+                    pathname.startsWith(primaryNavigation[0]?.route || '/articles') ? 'text-violet-700' : 'text-slate-900 hover:text-violet-700'
+                  )}
+                >
+                  {primaryNavigation[0]?.label || 'Articles'}
+                </Link>
+              ) : (
+                <div className="flex items-center gap-5">
+                  {primaryNavigation.map((task) => {
+                    const isActive = pathname.startsWith(task.route)
+                    return (
+                      <Link
+                        key={task.key}
+                        href={task.route}
+                        className={cn(
+                          'text-sm font-semibold uppercase tracking-[0.2em] transition-colors',
+                          isActive ? 'text-violet-700' : 'text-slate-700 hover:text-violet-700'
+                        )}
+                      >
+                        {task.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+              <div className="h-px w-10 bg-gradient-to-l from-transparent via-slate-300 to-slate-300 sm:w-16" />
+            </div>
+          </div>
+        ) : null}
+
+        <div className={cn('flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3', isEditorial ? 'z-10 flex-1' : '')}>
           {primaryTask && (recipe.navbar === 'utility-bar' || recipe.navbar === 'floating-bar') ? (
             <Link href={primaryTask.route} className="hidden items-center gap-2 rounded-full border border-current/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] opacity-80 md:inline-flex">
               <Sparkles className="h-3.5 w-3.5" />
@@ -280,7 +318,7 @@ export function Navbar() {
             </Link>
           ) : null}
 
-          <Button variant="ghost" size="icon" asChild className="hidden rounded-full md:flex">
+          <Button variant="ghost" size="icon" asChild className="hidden rounded-full text-[#4A5568] hover:bg-violet-50/80 hover:text-slate-900 md:flex">
             <Link href="/search">
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
@@ -291,16 +329,16 @@ export function Navbar() {
             <NavbarAuthControls />
           ) : (
             <div className="hidden items-center gap-2 md:flex">
-              <Button variant="ghost" size="sm" asChild className="rounded-full px-4">
+              <Button variant="ghost" size="sm" asChild className="rounded-full px-4 text-[#4A5568] hover:bg-violet-50/80 hover:text-slate-900">
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button size="sm" asChild className={style.cta}>
-                <Link href="/register">{isEditorial ? 'Subscribe' : isUtility ? 'Post Now' : 'Get Started'}</Link>
+              <Button size="sm" asChild className={cn('rounded-full font-semibold shadow-sm', style.cta)}>
+                <Link href="/register">{isEditorial ? 'Join free' : isUtility ? 'Post Now' : 'Get Started'}</Link>
               </Button>
             </div>
           )}
 
-          <Button variant="ghost" size="icon" className="rounded-full lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <Button variant="ghost" size="icon" className="rounded-full text-slate-700 hover:bg-violet-50 lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>

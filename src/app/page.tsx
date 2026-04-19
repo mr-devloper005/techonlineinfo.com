@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, ShieldCheck, Tag, User } from 'lucide-react'
+import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, Search, ShieldCheck, Tag, User } from 'lucide-react'
 import { ContentImage } from '@/components/shared/content-image'
 import { NavbarShell } from '@/components/shared/navbar-shell'
 import { Footer } from '@/components/shared/footer'
@@ -14,6 +14,7 @@ import { getFactoryState } from '@/design/factory/get-factory-state'
 import { getProductKind, type ProductKind } from '@/design/factory/get-product-kind'
 import type { SitePost } from '@/lib/site-connector'
 import { HOME_PAGE_OVERRIDE_ENABLED, HomePageOverride } from '@/overrides/home-page'
+import { cn } from '@/lib/utils'
 
 export const revalidate = 300
 
@@ -99,16 +100,17 @@ function getDirectoryTone(brandPack: string) {
   }
 }
 
-function getEditorialTone() {
+/** Glass / violet editorial — matches articles listing and reference UI */
+function getEditorialGlassTone() {
   return {
-    shell: 'bg-[#fbf6ee] text-[#241711]',
-    panel: 'border border-[#dcc8b7] bg-[#fffdfa] shadow-[0_24px_60px_rgba(77,47,27,0.08)]',
-    soft: 'border border-[#e6d6c8] bg-[#fff4e8]',
-    muted: 'text-[#6e5547]',
-    title: 'text-[#241711]',
-    badge: 'bg-[#241711] text-[#fff1e2]',
-    action: 'bg-[#241711] text-[#fff1e2] hover:bg-[#3a241b]',
-    actionAlt: 'border border-[#dcc8b7] bg-transparent text-[#241711] hover:bg-[#f5e7d7]',
+    shell: 'relative text-slate-900',
+    panel: 'border border-white/55 bg-white/50 shadow-[0_24px_70px_rgba(99,102,241,0.1)] backdrop-blur-xl',
+    soft: 'border border-white/45 bg-white/40 shadow-[0_8px_32px_rgba(99,102,241,0.06)] backdrop-blur-md',
+    muted: 'text-slate-500',
+    title: 'text-slate-900',
+    badge: 'bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-sm',
+    action: 'bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-md hover:opacity-95',
+    actionAlt: 'border border-white/60 bg-white/70 text-slate-900 shadow-sm hover:bg-white/85 backdrop-blur-sm',
   }
 }
 
@@ -269,7 +271,7 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
 }
 
 function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTask?: EnabledTask; articlePosts: SitePost[]; supportTasks: EnabledTask[] }) {
-  const tone = getEditorialTone()
+  const tone = getEditorialGlassTone()
   const lead = articlePosts[0]
   const side = articlePosts.slice(1, 5)
 
@@ -278,52 +280,99 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
         <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div>
-            <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
-              <FileText className="h-3.5 w-3.5" />
-              Reading-first publication
+            <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] font-semibold uppercase tracking-[0.12em]">
+              <Link href="/articles" className="text-violet-700 transition-colors hover:text-violet-900">
+                All
+              </Link>
+              <span className="text-slate-300">·</span>
+              <Link href="/articles?category=news" className="text-violet-700 transition-colors hover:text-violet-900">
+                News
+              </Link>
+              <span className="text-slate-300">·</span>
+              <Link href="/articles?category=blog" className="text-violet-700 transition-colors hover:text-violet-900">
+                Guides
+              </Link>
+              <span className="ml-1 text-xs font-medium normal-case tracking-normal text-slate-500">Technology articles</span>
+            </div>
+            <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white ${tone.badge}`}>
+              <FileText className="h-3.5 w-3.5 opacity-90" />
+              Best of the week
             </span>
-            <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
-              Essays, analysis, and slower reading designed like a publication, not a dashboard.
+            <h1 className={`mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-[3.25rem] ${tone.title}`}>
+              Practical technology explainers, deep dives, and editorial perspectives for serious readers.
             </h1>
             <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
+            <Link
+              href="/search"
+              className="mt-8 flex w-full max-w-xl items-center gap-3 rounded-[1.35rem] border border-white/70 bg-white px-4 py-3.5 text-sm text-slate-500 shadow-[0_8px_32px_rgba(99,102,241,0.08)] backdrop-blur-sm transition hover:border-violet-200/90 hover:shadow-[0_12px_40px_rgba(99,102,241,0.12)]"
+            >
+              <Search className="h-4 w-4 shrink-0 text-violet-600" />
+              <span>Article name, tag, category...</span>
+            </Link>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={primaryTask?.route || '/articles'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
                 Start reading
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/about" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
+              <Link href="/about" className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
                 About the publication
               </Link>
             </div>
           </div>
 
-          <aside className={`rounded-[2rem] p-6 ${tone.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Inside this issue</p>
+          <aside className={`rounded-[2rem] p-6 sm:p-7 ${tone.panel}`}>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Recommended</p>
+              <Link href="/articles" className="text-xs font-semibold text-violet-600 hover:text-violet-700">
+                View all
+              </Link>
+            </div>
             <div className="mt-5 space-y-5">
-              {side.map((post) => (
-                <Link key={post.id} href={`/articles/${post.slug}`} className="block border-b border-black/10 pb-5 last:border-b-0 last:pb-0">
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] opacity-60">Feature</p>
-                  <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
-                  <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Long-form perspective with a calmer reading rhythm.'}</p>
-                </Link>
-              ))}
+              {side.length ? (
+                side.map((post) => (
+                  <Link key={post.id} href={`/articles/${post.slug}`} className="group block border-b border-slate-200/80 pb-5 last:border-b-0 last:pb-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Editorial</p>
+                    <h3 className="mt-2 text-lg font-semibold leading-snug text-slate-900 group-hover:text-violet-700">{post.title}</h3>
+                    <p className={`mt-2 line-clamp-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Long-form perspective with a calmer reading rhythm.'}</p>
+                  </Link>
+                ))
+              ) : (
+                <p className={`text-sm leading-7 ${tone.muted}`}>More stories load here as they are published. Browse the archive anytime.</p>
+              )}
+            </div>
+            <div className="mt-6 rounded-2xl border border-violet-100/80 bg-gradient-to-br from-violet-600/95 to-indigo-600/90 p-5 text-white shadow-lg">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] opacity-90">Spotlight</p>
+              <p className="mt-3 text-sm font-medium leading-relaxed opacity-95">
+                Featured layout below refreshes with your latest lead story and keeps reading front and center.
+              </p>
             </div>
           </aside>
         </div>
 
         {lead ? (
-          <div className={`mt-12 overflow-hidden rounded-[2.5rem] ${tone.panel}`}>
+          <div className={`relative mt-12 overflow-hidden rounded-[2.5rem] ${tone.panel}`}>
             <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="relative min-h-[360px] overflow-hidden">
-                <ContentImage src={getPostImage(lead)} alt={lead.title} fill className="object-cover" />
+              <div className="relative min-h-[320px] overflow-hidden lg:min-h-[380px]">
+                <div
+                  className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.35),rgba(99,102,241,0.12)_45%,transparent_70%)] blur-2xl"
+                  aria-hidden
+                />
+                <div className="relative z-[1] h-full min-h-[320px] p-4 sm:p-6 lg:min-h-[380px] lg:p-8">
+                  <div className="relative h-full min-h-[280px] overflow-hidden rounded-[1.75rem] border border-white/50 bg-slate-100 shadow-inner lg:min-h-[320px]">
+                    <ContentImage src={getPostImage(lead)} alt={lead.title} fill className="object-cover" />
+                  </div>
+                </div>
               </div>
-              <div className="p-8 lg:p-10">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Lead story</p>
-                <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em]">{lead.title}</h2>
+              <div className="flex flex-col justify-center p-8 lg:p-10">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Lead story</p>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-slate-900 sm:text-4xl">{lead.title}</h2>
                 <p className={`mt-4 text-sm leading-8 ${tone.muted}`}>{lead.summary || 'A more deliberate lead story surface with room for a proper narrative setup.'}</p>
-                <Link href={`/articles/${lead.slug}`} className={`mt-8 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
+                <Link
+                  href={`/articles/${lead.slug}`}
+                  className="mt-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/80 bg-white/90 px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-violet-200 hover:shadow-md"
+                >
                   Read article
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 text-violet-600" />
                 </Link>
               </div>
             </div>
@@ -337,6 +386,22 @@ function EditorialHome({ primaryTask, articlePosts, supportTasks }: { primaryTas
               <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>{task.description}</p>
             </Link>
           ))}
+          {!supportTasks.length ? (
+            <>
+              <Link href="/articles" className={`rounded-[1.8rem] p-6 ${tone.soft}`}>
+                <h3 className="text-xl font-semibold">Latest analysis</h3>
+                <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>Browse fresh analysis and long-form stories published this week.</p>
+              </Link>
+              <Link href="/articles" className={`rounded-[1.8rem] p-6 ${tone.soft}`}>
+                <h3 className="text-xl font-semibold">Editor picks</h3>
+                <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>Read handpicked articles selected for depth, clarity, and practical value.</p>
+              </Link>
+              <Link href="/register" className={`rounded-[1.8rem] p-6 ${tone.soft}`}>
+                <h3 className="text-xl font-semibold">Join readers</h3>
+                <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>Create an account to save favorites and keep a personal reading list.</p>
+              </Link>
+            </>
+          ) : null}
         </div>
       </section>
     </main>
@@ -520,8 +585,17 @@ export default async function HomePage() {
     },
   ]
 
+  const isEditorialHome = productKind === 'editorial'
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div
+      className={cn(
+        'min-h-screen',
+        isEditorialHome
+          ? 'bg-[radial-gradient(circle_at_85%_0%,rgba(139,92,246,0.14),transparent_40%),radial-gradient(circle_at_5%_15%,rgba(99,102,241,0.1),transparent_35%),linear-gradient(180deg,#eef2fb_0%,#f6f8ff_45%,#ffffff_100%)] text-slate-900'
+          : 'bg-background text-foreground'
+      )}
+    >
       <NavbarShell />
       <SchemaJsonLd data={schemaData} />
       {productKind === 'directory' ? (
