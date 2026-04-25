@@ -41,6 +41,43 @@ const variantShells = {
   'sbm-library': 'bg-[linear-gradient(180deg,#f7f8fc_0%,#ffffff_100%)]',
 } as const
 
+const editorialSignatures = [
+  {
+    badge: 'border-fuchsia-200/80 bg-white/75 text-fuchsia-700',
+    chip: 'border-fuchsia-100 bg-fuchsia-50/80 text-fuchsia-700',
+    title: 'from-fuchsia-700 via-violet-700 to-indigo-700',
+    highlight: 'from-fuchsia-600/90 to-indigo-600/90',
+    accent: 'text-fuchsia-700',
+    panel: 'border-fuchsia-100/70 bg-white/72',
+    tagline: 'Lab Notes',
+  },
+  {
+    badge: 'border-emerald-200/80 bg-white/75 text-emerald-700',
+    chip: 'border-emerald-100 bg-emerald-50/80 text-emerald-700',
+    title: 'from-emerald-700 via-teal-700 to-cyan-700',
+    highlight: 'from-emerald-600/90 to-cyan-600/90',
+    accent: 'text-emerald-700',
+    panel: 'border-emerald-100/70 bg-white/72',
+    tagline: 'Signal Desk',
+  },
+  {
+    badge: 'border-amber-200/90 bg-white/80 text-amber-700',
+    chip: 'border-amber-100 bg-amber-50/85 text-amber-700',
+    title: 'from-amber-700 via-orange-700 to-rose-700',
+    highlight: 'from-amber-600/90 to-rose-600/90',
+    accent: 'text-orange-700',
+    panel: 'border-amber-100/80 bg-white/78',
+    tagline: 'Field Briefing',
+  },
+] as const
+
+const pickEditorialSignature = () => {
+  const seed = `${SITE_CONFIG.domain}-${SITE_CONFIG.name}`
+  let total = 0
+  for (const char of seed) total += char.charCodeAt(0)
+  return editorialSignatures[total % editorialSignatures.length]
+}
+
 export async function TaskListPage({ task, category }: { task: TaskKey; category?: string }) {
   if (TASK_LIST_PAGE_OVERRIDE_ENABLED) {
     return await TaskListPageOverride({ task, category })
@@ -61,6 +98,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const layoutKey = recipe.taskLayouts[task as keyof typeof recipe.taskLayouts] || `${task}-${task === 'listing' ? 'directory' : 'editorial'}`
   const shellClass = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
   const Icon = taskIcons[task] || LayoutGrid
+  const editorialSignature = pickEditorialSignature()
 
   const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
   const ui = isDark
@@ -161,30 +199,30 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           <section className="mb-14 grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-start">
             <div className="relative">
               <div className="mb-5 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center rounded-full border border-violet-200/80 bg-white/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-violet-700 backdrop-blur-sm">
-                  All · News · Guides
+                <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] backdrop-blur-sm ${editorialSignature.badge}`}>
+                  All | News | Guides
                 </span>
-                <span className="text-xs text-slate-500">Curated technology articles</span>
+                <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${editorialSignature.accent}`}>{editorialSignature.tagline}</span>
               </div>
               <p className={`text-xs font-semibold uppercase tracking-[0.28em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-slate-900 sm:text-5xl lg:text-[3.15rem]">
+              <h1 className={`mt-3 max-w-4xl bg-gradient-to-r bg-clip-text text-4xl font-semibold tracking-[-0.05em] text-transparent sm:text-5xl lg:text-[3.15rem] ${editorialSignature.title}`}>
                 {taskConfig?.description || 'Latest posts'}
               </h1>
               <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>
-                Browse explainers, analysis, and long-form stories in a calm layout with glass panels, soft gradients, and room to focus.
+                A reading deck tuned for long-form stories, sharper scanning, and topic-first navigation.
               </p>
               <Link
                 href="/search"
-                className={`mt-8 flex w-full max-w-xl items-center gap-3 rounded-full border border-white/60 bg-white/55 px-4 py-3.5 text-sm text-slate-600 shadow-[0_12px_40px_rgba(99,102,241,0.08)] backdrop-blur-md transition hover:border-violet-200/80 hover:bg-white/75`}
+                className={`mt-8 flex w-full max-w-xl items-center gap-3 rounded-full border px-4 py-3.5 text-sm text-slate-600 shadow-[0_12px_40px_rgba(99,102,241,0.08)] backdrop-blur-md transition hover:bg-white/90 ${editorialSignature.panel}`}
               >
-                <Search className="h-4 w-4 shrink-0 text-violet-600" />
-                <span className="text-slate-500">Article name, tag, category…</span>
+                <Search className={`h-4 w-4 shrink-0 ${editorialSignature.accent}`} />
+                <span className="text-slate-500">Article name, tag, category...</span>
               </Link>
             </div>
-            <div className={`rounded-[2rem] p-6 sm:p-7 ${ui.panel}`}>
+            <div className={`rounded-[2rem] border p-6 sm:p-7 ${ui.panel} ${editorialSignature.panel}`}>
               <div className="flex items-center justify-between gap-3">
                 <p className={`text-xs font-semibold uppercase tracking-[0.24em] ${ui.muted}`}>Recommended</p>
-                <Link href="/articles" className="text-xs font-semibold text-violet-600 hover:text-violet-700">
+                <Link href="/articles" className={`text-xs font-semibold ${editorialSignature.accent}`}>
                   View all
                 </Link>
               </div>
@@ -208,9 +246,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
                   Apply
                 </button>
               </form>
-              <div
-                className="mt-6 rounded-2xl border border-violet-100/80 bg-gradient-to-br from-violet-600/90 to-indigo-600/85 p-5 text-white shadow-lg"
-              >
+              <div className={`mt-6 rounded-2xl border p-5 text-white shadow-lg bg-gradient-to-br ${editorialSignature.highlight} ${editorialSignature.chip}`}>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] opacity-90">Spotlight</p>
                 <p className="mt-3 text-lg font-semibold leading-snug tracking-[-0.02em]">
                   Start with the featured story, then explore the three-up row and archive.

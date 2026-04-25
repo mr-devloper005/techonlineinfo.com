@@ -123,6 +123,43 @@ const buildMapEmbedUrl = (
   return null;
 };
 
+const editorialDetailSignatures = [
+  {
+    shell:
+      "bg-[radial-gradient(circle_at_80%_12%,rgba(217,70,239,0.12),transparent_38%),radial-gradient(circle_at_8%_0%,rgba(139,92,246,0.12),transparent_34%),linear-gradient(180deg,#f8f5ff_0%,#ffffff_100%)]",
+    frame: "border-fuchsia-100/70 bg-white/75 shadow-[0_28px_90px_rgba(139,92,246,0.12)]",
+    badge: "border-fuchsia-200/90 bg-fuchsia-50/95 text-fuchsia-700",
+    accent: "text-fuchsia-700",
+    title: "from-fuchsia-700 via-violet-700 to-indigo-700",
+    chip: "border-fuchsia-200/70 bg-fuchsia-50/70 text-fuchsia-700",
+  },
+  {
+    shell:
+      "bg-[radial-gradient(circle_at_80%_12%,rgba(16,185,129,0.15),transparent_38%),radial-gradient(circle_at_8%_0%,rgba(45,212,191,0.15),transparent_34%),linear-gradient(180deg,#effcf8_0%,#ffffff_100%)]",
+    frame: "border-emerald-100/70 bg-white/76 shadow-[0_28px_90px_rgba(16,185,129,0.12)]",
+    badge: "border-emerald-200/90 bg-emerald-50/95 text-emerald-700",
+    accent: "text-emerald-700",
+    title: "from-emerald-700 via-teal-700 to-cyan-700",
+    chip: "border-emerald-200/70 bg-emerald-50/70 text-emerald-700",
+  },
+  {
+    shell:
+      "bg-[radial-gradient(circle_at_80%_12%,rgba(251,146,60,0.14),transparent_38%),radial-gradient(circle_at_8%_0%,rgba(244,63,94,0.12),transparent_34%),linear-gradient(180deg,#fff8f2_0%,#ffffff_100%)]",
+    frame: "border-amber-100/80 bg-white/78 shadow-[0_28px_90px_rgba(249,115,22,0.12)]",
+    badge: "border-amber-200/90 bg-amber-50/95 text-amber-700",
+    accent: "text-orange-700",
+    title: "from-amber-700 via-orange-700 to-rose-700",
+    chip: "border-amber-200/80 bg-amber-50/70 text-orange-700",
+  },
+] as const;
+
+const pickEditorialDetailSignature = () => {
+  const seed = `${SITE_CONFIG.domain}-${SITE_CONFIG.name}`;
+  let total = 0;
+  for (const char of seed) total += char.charCodeAt(0);
+  return editorialDetailSignatures[total % editorialDetailSignatures.length];
+};
+
 export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
   if (TASK_DETAIL_PAGE_OVERRIDE_ENABLED) {
     return await TaskDetailPageOverride({ task, slug });
@@ -155,13 +192,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
     (typeof content.author === "string" && content.author.trim()) ||
     post.authorName ||
     "Editorial Team";
-  const articleDate = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "";
   const postTags = Array.isArray(post.tags) ? post.tags.filter((tag) => typeof tag === "string") : [];
   const location = content.address || content.location;
   const images = getImageUrls(post, content);
@@ -226,6 +256,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const schemaPayload = articleSchema ? [articleSchema, breadcrumbSchema] : breadcrumbSchema;
   const { recipe } = getFactoryState();
   const productKind = getProductKind(recipe);
+  const editorialSignature = pickEditorialDetailSignature();
 
   if (productKind === "directory" && (task === "listing" || task === "classified" || task === "profile")) {
     return (
@@ -248,15 +279,15 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("min-h-screen", isArticle ? editorialSignature.shell : "bg-background")}>
       <NavbarShell />
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <SchemaJsonLd data={schemaPayload} />
         <Link
           href={taskConfig?.route || "/"}
-          className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          className={cn("mb-6 inline-flex items-center text-sm hover:text-foreground", isArticle ? editorialSignature.accent : "text-muted-foreground")}
         >
-          ← Back to {taskConfig?.label || "posts"}
+          Back to {taskConfig?.label || "posts"}
         </Link>
 
         <div
@@ -267,32 +298,33 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
         >
           <div className={cn(isClassified ? "space-y-8" : "")}>
             {isArticle ? (
-              <div className="mx-auto w-full max-w-4xl space-y-6">
-                <h1 className="text-4xl font-semibold leading-tight text-foreground">
-                  {post.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                  <span>By {articleAuthor}</span>
-                  {articleDate ? <span>{articleDate}</span> : null}
-                  <Badge variant="secondary" className="inline-flex items-center gap-1">
-                    <Tag className="h-3.5 w-3.5" />
-                    {category}
-                  </Badge>
-                </div>
-                {postTags.length ? (
-                  <div className="flex flex-wrap gap-2">
-                    {postTags.map((tag) => (
-                      <Badge key={tag} variant="outline">
-                        {tag}
-                      </Badge>
-                    ))}
+              <article className={`mx-auto w-full max-w-5xl space-y-7 rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${editorialSignature.frame}`}>
+                <header className="space-y-5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${editorialSignature.badge}`}>
+                      <Tag className="h-3.5 w-3.5" />
+                      {category}
+                    </span>
+                    <span className="text-sm text-slate-600">By {articleAuthor}</span>
                   </div>
-                ) : null}
-                {articleSummary ? (
-                  <p className="text-base leading-7 text-muted-foreground">{articleSummary}</p>
-                ) : null}
+                  <h1 className={`bg-gradient-to-r bg-clip-text text-4xl font-semibold leading-tight tracking-[-0.04em] text-transparent sm:text-5xl ${editorialSignature.title}`}>
+                    {post.title}
+                  </h1>
+                  {articleSummary ? (
+                    <p className="max-w-3xl text-base leading-8 text-slate-600">{articleSummary}</p>
+                  ) : null}
+                  {postTags.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {postTags.map((tag) => (
+                        <span key={tag} className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${editorialSignature.chip}`}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </header>
                 {images[0] ? (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-border bg-muted">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-white/70 bg-slate-100 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
                     <ContentImage
                       src={images[0]}
                       alt={`${post.title} featured image`}
@@ -305,9 +337,8 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                 ) : null}
                 <RichContent html={articleHtml} className="leading-8 prose-p:my-6 prose-h2:my-8 prose-h3:my-6 prose-ul:my-6" />
                 <ArticleComments slug={post.slug} />
-              </div>
+              </article>
             ) : null}
-
             {!isArticle ? (
               <>
                 {!isBookmark ? (
