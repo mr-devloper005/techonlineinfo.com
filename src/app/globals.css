@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --font-oswald: 'Oswald', system-ui, sans-serif;
   --background: oklch(0.985 0.006 84);
   --foreground: oklch(0.23 0.03 20);
   --card: oklch(0.992 0.004 84 / 0.96);
@@ -71,9 +72,9 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-sans: var(--font-oswald), system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-oswald), ui-serif, Georgia, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -158,7 +159,7 @@
   input,
   button,
   textarea {
-    font-family: var(--font-sans);
+    font-family: var(--font-oswald);
   }
 
   ::selection {
@@ -310,7 +311,7 @@ body[data-site-shell='article-home'] h1,
 body[data-site-shell='article-home'] h2,
 body[data-site-shell='article-home'] h3,
 body[data-site-shell='article-home'] h4 {
-  font-family: var(--font-sans);
+  font-family: var(--font-oswald);
   letter-spacing: -0.04em;
 }
 
@@ -368,7 +369,7 @@ body[data-site-shell='article-home'] [data-slot='card']:hover {
 .factory-font-editorial h2,
 .factory-font-editorial h3,
 .factory-font-editorial h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-oswald);
 }
 
 .factory-font-directory h1,
@@ -379,14 +380,14 @@ body[data-site-shell='article-home'] [data-slot='card']:hover {
 .factory-font-market h2,
 .factory-font-market h3,
 .factory-font-market h4 {
-  font-family: var(--font-sans);
+  font-family: var(--font-oswald);
 }
 
 .factory-font-studio h1,
 .factory-font-studio h2,
 .factory-font-studio h3,
 .factory-font-studio h4 {
-  font-family: var(--font-sans);
+  font-family: var(--font-oswald);
   letter-spacing: -0.05em;
 }
 
