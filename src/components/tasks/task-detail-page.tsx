@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { ArticleComments } from "@/components/tasks/article-comments";
 import { SchemaJsonLd } from "@/components/seo/schema-jsonld";
 import { RichContent, formatRichHtml } from "@/components/shared/rich-content";
+import { ArticleEngagementRail, FollowButton } from "@/components/tasks/article-engagement";
 import { getFactoryState } from "@/design/factory/get-factory-state";
 import { getProductKind } from "@/design/factory/get-product-kind";
 import { DirectoryTaskDetailPage } from "@/design/products/directory/task-detail-page";
@@ -160,6 +161,21 @@ const pickEditorialDetailSignature = () => {
   return editorialDetailSignatures[total % editorialDetailSignatures.length];
 };
 
+const formatPostDate = (post: SitePost) => {
+  const raw = post.publishedAt || post.createdAt || post.updatedAt;
+  if (!raw) return null;
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+};
+
+const getAuthorInitial = (name?: string | null) => {
+  const trimmed = typeof name === "string" ? name.trim() : "";
+  if (!trimmed) return "E";
+  const letter = trimmed[0]?.toUpperCase();
+  return letter && /[A-Z0-9]/.test(letter) ? letter : "E";
+};
+
 export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: string }) {
   if (TASK_DETAIL_PAGE_OVERRIDE_ENABLED) {
     return await TaskDetailPageOverride({ task, slug });
@@ -197,7 +213,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   const images = getImageUrls(post, content);
   const mapEmbedUrl = buildMapEmbedUrl(content.latitude, content.longitude, location);
   const isBookmark = task === "sbm" || task === "social";
-  const hideSidebar = isClassified || isArticle || task === "image" || isBookmark;
+  const hideSidebar = isClassified || task === "image" || isBookmark;
   const related = (await fetchTaskPosts(task, 6))
     .filter((item) => item.slug !== post.slug)
     .filter((item) => {
@@ -208,6 +224,7 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
     .slice(0, 3);
   const articleUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, "")}${taskConfig?.route || "/articles"}/${post.slug}`;
   const articleImage = absoluteUrl(images[0]) || absoluteUrl(SITE_CONFIG.defaultOgImage);
+  const engagementStorageKeyPrefix = `toi:article:${SITE_CONFIG.domain}:${post.slug}`;
   const articleSchema = isArticle
     ? {
         "@context": "https://schema.org",
@@ -290,83 +307,120 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
           Back to {taskConfig?.label || "posts"}
         </Link>
 
-        <div
-          className={cn(
-            "grid gap-10",
-            hideSidebar ? "lg:grid-cols-1" : "lg:grid-cols-[2fr_1fr]"
-          )}
-        >
-          <div className={cn(isClassified ? "space-y-8" : "")}>
-            {isArticle ? (
-              <article className={`mx-auto w-full max-w-5xl space-y-7 rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${editorialSignature.frame}`}>
-                <header className="space-y-5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${editorialSignature.badge}`}>
-                      <Tag className="h-3.5 w-3.5" />
-                      {category}
-                    </span>
-                    <span className="text-sm text-slate-600">By {articleAuthor}</span>
-                  </div>
-                  <h1 className={`bg-gradient-to-r bg-clip-text text-4xl font-semibold leading-tight tracking-[-0.04em] text-transparent sm:text-5xl ${editorialSignature.title}`}>
-                    {post.title}
-                  </h1>
-                  {articleSummary ? (
-                    <p className="max-w-3xl text-base leading-8 text-slate-600">{articleSummary}</p>
-                  ) : null}
-                  {postTags.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {postTags.map((tag) => (
-                        <span key={tag} className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${editorialSignature.chip}`}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </header>
-                {images[0] ? (
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-white/70 bg-slate-100 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
-                    <ContentImage
-                      src={images[0]}
-                      alt={`${post.title} featured image`}
-                      fill
-                      className="object-cover"
-                      intrinsicWidth={1600}
-                      intrinsicHeight={900}
-                    />
-                  </div>
-                ) : null}
-                <RichContent html={articleHtml} className="leading-8 prose-p:my-6 prose-h2:my-8 prose-h3:my-6 prose-ul:my-6" />
-                <ArticleComments slug={post.slug} />
-              </article>
-            ) : null}
-            {!isArticle ? (
-              <>
-                {!isBookmark ? (
-                  <div className={cn(isClassified ? "w-full" : "")}>
-                    <TaskImageCarousel images={images} />
-                  </div>
-                ) : null}
+        {isArticle ? (
+          <div className="grid gap-10 lg:grid-cols-[72px_minmax(0,1fr)_360px] lg:items-start">
+            <aside className="hidden lg:block">
+              <ArticleEngagementRail storageKeyPrefix={engagementStorageKeyPrefix} shareUrl={articleUrl} commentsTargetId="comments" />
+            </aside>
 
-                <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <Badge variant="secondary" className="inline-flex items-center gap-1">
-                      <Tag className="h-3.5 w-3.5" />
-                      {category}
-                    </Badge>
-                    {location && (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {location}
-                      </span>
-                    )}
-                  </div>
-                  <h1 className="mt-4 text-3xl font-semibold text-foreground">{post.title}</h1>
-                  <RichContent html={descriptionHtml} className="mt-3 max-w-3xl" />
+            <article className={`mx-auto w-full max-w-5xl space-y-7 rounded-[2rem] border p-6 sm:p-8 lg:p-10 ${editorialSignature.frame}`}>
+              <header className="space-y-5">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${editorialSignature.badge}`}>
+                    <Tag className="h-3.5 w-3.5" />
+                    {category}
+                  </span>
+                  <span className="text-sm text-slate-600">By {articleAuthor}</span>
                 </div>
-              </>
-            ) : null}
+                <h1 className={`bg-gradient-to-r bg-clip-text text-4xl font-semibold leading-tight tracking-[-0.04em] text-transparent sm:text-5xl ${editorialSignature.title}`}>
+                  {post.title}
+                </h1>
+                {articleSummary ? (
+                  <p className="max-w-3xl text-base leading-8 text-slate-600">{articleSummary}</p>
+                ) : null}
+                {postTags.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {postTags.map((tag) => (
+                      <span key={tag} className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${editorialSignature.chip}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </header>
+              {images[0] ? (
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-white/70 bg-slate-100 shadow-[0_20px_55px_rgba(15,23,42,0.16)]">
+                  <ContentImage
+                    src={images[0]}
+                    alt={`${post.title} featured image`}
+                    fill
+                    className="object-cover"
+                    intrinsicWidth={1600}
+                    intrinsicHeight={900}
+                  />
+                </div>
+              ) : null}
+              <RichContent html={articleHtml} className="leading-8 prose-p:my-6 prose-h2:my-8 prose-h3:my-6 prose-ul:my-6" />
+              <div id="comments">
+                <ArticleComments slug={post.slug} />
+              </div>
+            </article>
 
-            {isClassified ? (
+            <aside className="space-y-6 lg:sticky lg:top-24">
+              <div className="rounded-2xl border border-white/60 bg-white/55 p-6 shadow-sm backdrop-blur">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                    {getAuthorInitial(articleAuthor)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-slate-900">{articleAuthor}</p>
+                  </div>
+                </div>
+                <FollowButton storageKeyPrefix={`${engagementStorageKeyPrefix}:author:${articleAuthor}`} label="Follow" />
+              </div>
+
+              <div className="rounded-2xl border border-white/60 bg-white/55 p-6 shadow-sm backdrop-blur">
+                <h2 className="text-base font-semibold text-slate-900">More in {category}</h2>
+                <div className="mt-4 space-y-3">
+                  {related.length ? (
+                    related.map((item) => (
+                      <TaskPostCard
+                        key={item.id}
+                        post={item}
+                        href={buildPostUrl(task, item.slug)}
+                        taskKey={task}
+                        compact
+                      />
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-600">More posts coming soon.</p>
+                  )}
+                </div>
+              </div>
+            </aside>
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "grid gap-10",
+              hideSidebar ? "lg:grid-cols-1" : "lg:grid-cols-[2fr_1fr]"
+            )}
+          >
+            <div className={cn(isClassified ? "space-y-8" : "")}>
+              {!isBookmark ? (
+                <div className={cn(isClassified ? "w-full" : "")}>
+                  <TaskImageCarousel images={images} />
+                </div>
+              ) : null}
+
+              <div className={cn(isClassified ? "mx-auto w-full max-w-4xl" : "mt-6")}>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <Badge variant="secondary" className="inline-flex items-center gap-1">
+                    <Tag className="h-3.5 w-3.5" />
+                    {category}
+                  </Badge>
+                  {location && (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {location}
+                    </span>
+                  )}
+                </div>
+                <h1 className="mt-4 text-3xl font-semibold text-foreground">{post.title}</h1>
+                <RichContent html={descriptionHtml} className="mt-3 max-w-3xl" />
+              </div>
+
+              {isClassified ? (
               <div className="mx-auto w-full max-w-4xl rounded-2xl border border-border bg-card p-6">
                 <h2 className="text-lg font-semibold text-foreground">Business details</h2>
                 <div className="mt-4 space-y-3 text-sm text-muted-foreground">
@@ -505,68 +559,71 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
           </aside>
           ) : null}
         </div>
+        )}
 
-        <section className="mt-12">
-          {related.length ? (
-            <>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">
-                More in {category}
-              </h2>
-              {taskConfig?.route && (
-                <Link
-                  href={taskConfig.route}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  View all
-                </Link>
-              )}
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((item) => (
-                <TaskPostCard
-                  key={item.id}
-                  post={item}
-                  href={buildPostUrl(task, item.slug)}
-                />
-              ))}
-            </div>
-            </>
-          ) : null}
-          <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
-            <p className="text-sm font-semibold text-foreground">Related links</p>
-            <ul className="mt-2 space-y-2 text-sm">
-              {related.map((item) => (
-                <li key={`link-${item.id}`}>
-                  <Link
-                    href={buildPostUrl(task, item.slug)}
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-              {taskConfig?.route ? (
-                <li>
+        {!isArticle ? (
+          <section className="mt-12">
+            {related.length ? (
+              <>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">
+                  More in {category}
+                </h2>
+                {taskConfig?.route && (
                   <Link
                     href={taskConfig.route}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    View all
+                  </Link>
+                )}
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item) => (
+                  <TaskPostCard
+                    key={item.id}
+                    post={item}
+                    href={buildPostUrl(task, item.slug)}
+                  />
+                ))}
+              </div>
+              </>
+            ) : null}
+            <nav className="mt-6 rounded-2xl border border-border bg-card/60 p-4">
+              <p className="text-sm font-semibold text-foreground">Related links</p>
+              <ul className="mt-2 space-y-2 text-sm">
+                {related.map((item) => (
+                  <li key={`link-${item.id}`}>
+                    <Link
+                      href={buildPostUrl(task, item.slug)}
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+                {taskConfig?.route ? (
+                  <li>
+                    <Link
+                      href={taskConfig.route}
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      Browse all {taskConfig.label}
+                    </Link>
+                  </li>
+                ) : null}
+                <li>
+                  <Link
+                    href={`/search?q=${encodeURIComponent(category)}`}
                     className="text-primary underline-offset-4 hover:underline"
                   >
-                    Browse all {taskConfig.label}
+                    Search more in {category}
                   </Link>
                 </li>
-              ) : null}
-              <li>
-                <Link
-                  href={`/search?q=${encodeURIComponent(category)}`}
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  Search more in {category}
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </section>
+              </ul>
+            </nav>
+          </section>
+        ) : null}
       </main>
       <Footer />
     </div>
