@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function TaskListClient({ task, initialPosts, category }: Props) {
-  const [localPosts, setLocalPosts] = useState<Array<SitePost & { localOnly?: boolean; task?: TaskKey }>>([]);
+  const [localPosts, setLocalPosts] = useState<Array<SitePost & { localOnly?: boolean }>>([]);
 
   useEffect(() => {
     setLocalPosts(getLocalPostsForTask(task));
@@ -23,7 +23,7 @@ export function TaskListClient({ task, initialPosts, category }: Props) {
 
   const merged = useMemo(() => {
     const bySlug = new Set<string>();
-    const combined: Array<SitePost & { localOnly?: boolean; task?: TaskKey }> = [];
+    const combined: Array<SitePost & { localOnly?: boolean }> = [];
 
     localPosts.forEach((post) => {
       if (post.slug) {
