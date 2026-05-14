@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type EnabledTask = (typeof SITE_CONFIG.tasks)[number]
 type TaskFeedItem = { task: EnabledTask; posts: SitePost[] }
 
-const taskIcons: Record<TaskKey, any> = {
+const taskIcons: Partial<Record<TaskKey, any>> = {
   article: FileText,
   listing: Building2,
   sbm: Bookmark,
@@ -43,7 +43,20 @@ const taskIcons: Record<TaskKey, any> = {
 }
 
 function resolveTaskKey(value: unknown, fallback: TaskKey): TaskKey {
-  if (value === 'listing' || value === 'classified' || value === 'article' || value === 'image' || value === 'profile' || value === 'sbm') return value
+  if (
+    value === 'listing' ||
+    value === 'classified' ||
+    value === 'article' ||
+    value === 'image' ||
+    value === 'profile' ||
+    value === 'sbm' ||
+    value === 'comment' ||
+    value === 'pdf' ||
+    value === 'org' ||
+    value === 'social'
+  ) {
+    return value
+  }
   return fallback
 }
 

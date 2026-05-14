@@ -1,7 +1,10 @@
+import type { TaskKey } from "@/lib/site-config";
+
 export type SitePost = {
   id: string;
   title: string;
   slug: string;
+  task?: TaskKey;
   summary?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;

@@ -41,10 +41,10 @@ const getContent = (post: any): PostContent => {
 const getImageUrls = (post: any, content: PostContent) => {
   const media = Array.isArray(post.media) ? post.media : [];
   const mediaImages = media
-    .map((item) => item?.url)
-    .filter((url): url is string => isValidImageUrl(url));
+    .map((item: { url?: string } | null | undefined) => item?.url)
+    .filter((url: unknown): url is string => isValidImageUrl(typeof url === "string" ? url : null));
   const contentImages = Array.isArray(content.images)
-    ? content.images.filter((url): url is string => isValidImageUrl(url))
+    ? content.images.filter((url: string): url is string => isValidImageUrl(url))
     : [];
   const merged = [...mediaImages, ...contentImages];
   if (merged.length) return merged;
