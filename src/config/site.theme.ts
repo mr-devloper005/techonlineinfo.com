@@ -3,11 +3,11 @@ import { defineSiteTheme } from '@/config/site.theme.defaults'
 export const SITE_THEME = defineSiteTheme({
   shell: 'editorial',
   hero: {
-    variant: 'story-first',
+    variant: 'spotlight-split',
     eyebrow: 'Article publishing desk',
   },
   home: {
-    layout: 'editorial-grid',
+    layout: 'editorial-rhythm',
     primaryTask: 'article',
     featuredTaskKeys: ['article'],
   },

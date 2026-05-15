@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type EnabledTask = (typeof SITE_CONFIG.tasks)[number]
 type TaskFeedItem = { task: EnabledTask; posts: SitePost[] }
 
-const taskIcons: Record<TaskKey, any> = {
+const taskIcons: Partial<Record<TaskKey, any>> = {
   article: FileText,
   listing: Building2,
   sbm: Bookmark,
@@ -43,7 +43,20 @@ const taskIcons: Record<TaskKey, any> = {
 }
 
 function resolveTaskKey(value: unknown, fallback: TaskKey): TaskKey {
-  if (value === 'listing' || value === 'classified' || value === 'article' || value === 'image' || value === 'profile' || value === 'sbm') return value
+  if (
+    value === 'listing' ||
+    value === 'classified' ||
+    value === 'article' ||
+    value === 'image' ||
+    value === 'profile' ||
+    value === 'sbm' ||
+    value === 'comment' ||
+    value === 'pdf' ||
+    value === 'org' ||
+    value === 'social'
+  ) {
+    return value
+  }
   return fallback
 }
 
@@ -256,7 +269,9 @@ function DirectoryHome({ primaryTask, enabledTasks, listingPosts, classifiedPost
                     <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
                   </div>
                   <div className="p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">{meta.category || post.task || 'Profile'}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">
+                      {meta.category || taskKey || 'Profile'}
+                    </p>
                     <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
                     <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Quick access to local information and related surfaces.'}</p>
                   </div>

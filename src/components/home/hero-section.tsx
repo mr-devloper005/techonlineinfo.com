@@ -68,6 +68,9 @@ export function HeroSection({ images, tasks }: { images: string[]; tasks: TaskCo
   const primaryTask = tasks.find((task) => task.key === SITE_THEME.home.primaryTask) || tasks[0];
   const featuredTasks = tasks.filter((task) => SITE_THEME.home.featuredTaskKeys.includes(task.key)).slice(0, 3);
   const palette = heroClasses[SITE_THEME.hero.variant];
+  const heroTitleLines = siteContent.hero.title;
+  const heroTitleFirst = heroTitleLines[0] || SITE_CONFIG.name;
+  const heroTitleSecond = heroTitleLines.at(1) || "";
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -102,7 +105,8 @@ export function HeroSection({ images, tasks }: { images: string[]; tasks: TaskCo
               {SITE_THEME.hero.eyebrow}
             </div>
             <h1 className={`mt-6 text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${palette.title}`}>
-              {siteContent.hero.title[0]} <span className="block opacity-90">{siteContent.hero.title[1]}</span>
+              {heroTitleFirst}
+              {heroTitleSecond ? <span className="block opacity-90">{heroTitleSecond}</span> : null}
             </h1>
             <p className={`mt-6 max-w-2xl text-base leading-8 sm:text-lg ${palette.body}`}>{siteContent.hero.description}</p>
 
