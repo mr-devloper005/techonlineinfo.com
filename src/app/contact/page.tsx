@@ -102,16 +102,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-semibold">Send a message</h2>
             <ContactLeadForm />
             
-            <div className="mt-6 pt-6 border-t border-current/10">
-              <p className={`text-sm ${tone.muted} mb-3`}>Or reach us directly via email:</p>
-              <a 
-                href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'contact@techonlineinfo.com'}`}
-                className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold ${tone.action} w-full`}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Send Email
-              </a>
-            </div>
+            
           </div>
         </section>
       </main>

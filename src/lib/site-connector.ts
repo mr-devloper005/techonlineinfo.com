@@ -2,6 +2,7 @@ export type SitePost = {
   id: string;
   title: string;
   slug: string;
+  task?: string | null;
   summary?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
