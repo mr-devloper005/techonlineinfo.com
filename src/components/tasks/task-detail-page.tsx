@@ -325,9 +325,6 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
                 <h1 className={`bg-gradient-to-r bg-clip-text text-4xl font-semibold leading-tight tracking-[-0.04em] text-transparent sm:text-5xl ${editorialSignature.title}`}>
                   {post.title}
                 </h1>
-                {articleSummary ? (
-                  <p className="max-w-3xl text-base leading-8 text-slate-600">{articleSummary}</p>
-                ) : null}
                 {postTags.length ? (
                   <div className="flex flex-wrap gap-2">
                     {postTags.map((tag) => (
